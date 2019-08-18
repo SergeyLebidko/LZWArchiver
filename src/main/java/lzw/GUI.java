@@ -96,7 +96,7 @@ public class GUI {
                 packer.pack(selectedFile);
                 println("Файл " + selectedFile.getName() + " успешно упакован");
             } catch (Exception ex) {
-                println("Ошибка: " + ex.getMessage());
+                println(ex.getMessage());
             }
         }
     };
@@ -112,7 +112,7 @@ public class GUI {
                 unpacker.unpack(selectedFile);
                 println("Архив " + selectedFile.getName() + " успешно распакован");
             } catch (Exception ex) {
-                println("Ошибка: " + ex.getMessage());
+                println(ex.getMessage());
             }
         }
     };
