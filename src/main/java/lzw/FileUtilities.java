@@ -26,4 +26,11 @@ public class FileUtilities {
         }
     }
 
+    //Метод проверяет входной файл. Он должен существовать, быть доступным для чтения и быть не пустым
+    public static void checkFile(File file) throws Exception {
+        if (!file.exists()) throw new Exception("Файл не существует");
+        if (file.length() == 0) throw new Exception("Файл пуст");
+        if (!file.canRead()) throw new Exception("Файл не доступен для чтения");
+    }
+
 }
