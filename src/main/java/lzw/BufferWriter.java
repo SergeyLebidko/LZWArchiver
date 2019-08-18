@@ -21,8 +21,15 @@ public class BufferWriter {
         list = new LinkedList<>();
     }
 
-    public void write(String byteStr) throws IOException {
-        list.add(convertStringToByte(byteStr));
+    public void put(String value) throws IOException {
+        list.add(convertStringToByte(value));
+        if (list.size() == BUFFER_SIZE) {
+            writeToFile();
+        }
+    }
+
+    public void put(byte value) throws IOException {
+        list.add(value);
         if (list.size() == BUFFER_SIZE) {
             writeToFile();
         }

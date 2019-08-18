@@ -1,9 +1,6 @@
 package lzw;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.nio.channels.FileChannel;
 import java.util.HashMap;
 import java.util.Map;
@@ -15,6 +12,7 @@ import static lzw.FileUtilities.*;
 public class Packer {
 
     private static final int MAX_TABLE_SIZE = 65535;
+    private static final int CODE_LENGTH = 16;
 
     private Map<String, String> cTable;
 
@@ -38,8 +36,11 @@ public class Packer {
             BufferReader reader = new BufferReader(inputChannel);
             BufferWriter writer = new BufferWriter(outputChannel);
 
-            String w = "";      //Прошлая последовательность
-            String wc = "";     //Текущая последовательность
+            //Формируем заголовок файла
+            createArchiveHeader(writer, getFileExtension(inputFile));
+
+            String w = "";      //Последовательность на прошедшей итерации
+            String wc;          //Текущая последовательность
             String c;           //Текущий символ
 
             StringBuffer buffer = new StringBuffer();
@@ -53,34 +54,31 @@ public class Packer {
                 } else {
                     buffer.append(cTable.get(w));
                     while (buffer.length() >= 8) {
-                        writer.write(buffer.substring(0, 8));
+                        writer.put(buffer.substring(0, 8));
                         buffer.delete(0, 8);
                     }
                     w = c;
                     if (cTable.size() < MAX_TABLE_SIZE) {
-                        nextCode = "000000000000000000000000" + Integer.toBinaryString(cTable.size());
-                        nextCode = nextCode.substring(nextCode.length() - 8, nextCode.length());
+                        nextCode = Integer.toBinaryString(cTable.size());
+                        while (nextCode.length() < CODE_LENGTH) {
+                            nextCode = "0" + nextCode;
+                        }
+                        nextCode = nextCode.substring(nextCode.length() - CODE_LENGTH);
                         cTable.put(wc, nextCode);
                     }
                 }
             }
 
             buffer.append(cTable.get(w));
-//            if (buffer.length() % 12 != 0) {
-//                buffer.append("0000");
-//            }
             while (buffer.length() >= 8) {
-                writer.write(buffer.substring(0, 8));
+                writer.put(buffer.substring(0, 8));
                 buffer.delete(0, 8);
             }
             writer.forceWrite();
 
-            System.out.println("Размер таблицы: " + cTable.size());
-
         } catch (IOException ex) {
             throw new Exception("Ошибка чтения/записи: " + ex.getMessage());
         }
-
     }
 
     private void initCodeTable() {
@@ -89,13 +87,27 @@ public class Packer {
         String value;
         for (int i = 0; i < 256; i++) {
             key = convertByteToString((byte) i);
-            value = "00000000" + key;
+            value = key;
+            while (value.length() < CODE_LENGTH) {
+                value = "0" + value;
+            }
             cTable.put(key, value);
         }
     }
 
     private File createOutputFile(File inputFile) {
         return new File(inputFile.getParent(), getFileName(inputFile) + ".lzw");
+    }
+
+    private void createArchiveHeader(BufferWriter writer, String fileExtension) throws IOException {
+        int extensionLength = fileExtension.getBytes().length;
+        writer.put(convertByteToString((byte) extensionLength));
+
+        if (extensionLength > 0) {
+            for (byte b : fileExtension.getBytes()) {
+                writer.put(b);
+            }
+        }
     }
 
 }
