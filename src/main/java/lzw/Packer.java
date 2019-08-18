@@ -46,7 +46,7 @@ public class Packer {
             StringBuffer buffer = new StringBuffer();
             String nextCode;
 
-            while ((c = reader.read()) != null) {
+            while ((c = reader.get()) != null) {
                 wc = w + c;
                 if (cTable.get(wc) != null) {
                     w = wc;

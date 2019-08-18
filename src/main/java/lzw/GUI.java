@@ -27,6 +27,7 @@ public class GUI {
 
         @Override
         public boolean accept(File f) {
+            if (f.isDirectory()) return true;
             String extension = FileUtilities.getFileExtension(f);
             if (extension == null) return true;
             return extension.equals("lzw");
@@ -36,7 +37,6 @@ public class GUI {
         public String getDescription() {
             return "Архивы lzw";
         }
-
 
     }
 
@@ -93,7 +93,6 @@ public class GUI {
 
             File selectedFile = packFileChooser.getSelectedFile();
             try {
-                println("Архивирую " + selectedFile);
                 packer.pack(selectedFile);
                 println("Файл " + selectedFile.getName() + " успешно упакован");
             } catch (Exception ex) {
@@ -110,7 +109,6 @@ public class GUI {
 
             File selectedFile = unpackFileChooser.getSelectedFile();
             try {
-                println("Распаковываю " + selectedFile);
                 unpacker.unpack(selectedFile);
                 println("Архив " + selectedFile.getName() + " успешно распакован");
             } catch (Exception ex) {

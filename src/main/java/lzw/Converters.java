@@ -6,7 +6,9 @@ public class Converters {
     public static String convertByteToString(Byte b) {
         if (b == null) return null;
         String byteString = Integer.toBinaryString(b);
-        byteString = "0000000" + byteString;
+        while (byteString.length() < 8) {
+            byteString = "0" + byteString;
+        }
         byteString = byteString.substring(byteString.length() - 8);
         return byteString;
     }

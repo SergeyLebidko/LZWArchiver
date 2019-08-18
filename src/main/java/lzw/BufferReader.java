@@ -21,7 +21,7 @@ public class BufferReader {
         list = new LinkedList<>();
     }
 
-    public String read() throws IOException {
+    public String get() throws IOException {
         if (list.isEmpty()) {
             readFromFile();
         }
