@@ -11,8 +11,8 @@ import static lzw.FileUtilities.*;
 
 public class Packer {
 
-    private static final int MAX_TABLE_SIZE = 65535;
     private static final int CODE_LENGTH = 16;
+    private static final int MAX_TABLE_SIZE = (int)(Math.pow(2,CODE_LENGTH));
 
     private Map<String, String> cTable;
 
@@ -70,6 +70,9 @@ public class Packer {
             }
 
             buffer.append(cTable.get(w));
+            while (buffer.length() % 8 != 0) {
+                buffer.append("0");
+            }
             while (buffer.length() >= 8) {
                 writer.put(buffer.substring(0, 8));
                 buffer.delete(0, 8);
