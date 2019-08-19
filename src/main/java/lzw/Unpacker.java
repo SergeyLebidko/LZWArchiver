@@ -35,18 +35,27 @@ public class Unpacker {
                 BufferWriter writer = new BufferWriter(outputChannel);
 
                 //Начинаем распаковку
-                String code;
-                String v;
-                String pv = null;
+                String code;             //Текущий прочитанный код
+                String v;                //Текущая раскодированная последовательность байт
+                String pv = null;        //Последовательность байт, раскодированная на предыдущем шаге
+                String key;              //
 
-                String b1, b2;
+                String b;                                    //Временная переменная для хранения отдельных байтов
+                StringBuffer buffer = new StringBuffer();    //Буфер для временного хранения последовательностей байтов
 
                 while (true) {
-                    b1 = reader.get();
-                    b2 = reader.get();
-                    if (b1 == null | b2 == null) break;
 
-                    code = b1 + b2;
+                    while (true) {
+                        b = reader.get();
+                        if (b == null) break;
+
+                        buffer.append(b);
+                        if (buffer.length() >= CODE_LENGTH) break;
+                    }
+                    if (buffer.length() < CODE_LENGTH) break;
+
+                    code = buffer.substring(0, CODE_LENGTH);
+                    buffer.delete(0, CODE_LENGTH);
 
                     v = cTable.get(code);
 
@@ -59,12 +68,11 @@ public class Unpacker {
                     }
 
                     if (pv != null & cTable.size() < MAX_TABLE_SIZE) {
-                        String key = Integer.toBinaryString(cTable.size());
+                        key = Integer.toBinaryString(cTable.size());
                         while (key.length() < CODE_LENGTH) {
                             key = "0" + key;
                         }
                         key = key.substring(key.length() - CODE_LENGTH);
-
                         cTable.put(key, pv + v.substring(0, 8));
                     }
 
